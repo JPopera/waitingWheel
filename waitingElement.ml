@@ -31,6 +31,7 @@ let centerDisplacementY = displayHeight /. 2. -. elementRadius -. circleRadius /
 let angleAdjustmentY = elementRadius -. centerDisplacementY
 let angleAdjustmentX = -.(displayWidth /. 2.) -. circleRadius /. 2.
 
+(* fills a list with Image.t 's of circles in the amount that should be displayed at the given time *)
 let rec fillCircleList numberOfCircles =
   match numberOfCircles = 0 with
   | true -> []
@@ -49,12 +50,16 @@ let rec updateLocation locationList =
 
 
 
-
+(* Determines how many moving circles should be in the animation at the given time *)
 let circleDeterminer time =
   if time < 5.497787143782138
   then Code.f2I(Float.floor(time *. 4. /. Code.pi)) + 1
   else 14 - Code.f2I(Float.floor(time *. 4. /. Code.pi))
-
+  
+(* 
+Updates the locations using the parameter of time rather than finding 
+the angle to previous location and incrementing it a given amount.
+*)
 let rec timeUpdate time locationList =
   let counter = if time >= 5.497787143782138 then Code.i2F (7 - (circleDeterminer time)) else 0. in
   let rec loop locationList counter =
@@ -67,6 +72,7 @@ let rec timeUpdate time locationList =
   in
   loop locationList counter
 
+(* No longer in use -----
 let hidingCircles time =
   let counter = 7 - (circleDeterminer time) in
   let rec loop counter =
@@ -75,7 +81,7 @@ let hidingCircles time =
     | false -> (centerDisplacementX, centerDisplacementY) :: loop (counter - 1)
   in
   loop counter
-
+*)
 
 let length aList =
   let counter = 0 in
@@ -86,6 +92,7 @@ let length aList =
   in
   loop aList counter
 
+(* provides a list of length x (the number of circles to be displayed) containing arbitrary (float * float)s *)
 let rec fillLocationList x =
   match x = 0 with
   | true -> []
@@ -110,7 +117,7 @@ let update model =
               ; locations = location
               ; counter = model.counter +. 1.
               }
-  else World.World {time = 0. ; objs = [circle] ; locations = [(centerDisplacementX +. 0.001, centerDisplacementY)] ; counter = 0.}
+  else World.World initialModel
 
 
 let go model =
@@ -120,7 +127,7 @@ let go model =
     ~height: 800
     ~to_draw: view
     ~on_tick: update
-    ~rate: (1. /. 24.)
+    ~rate: (1. /. 24.) 
 ;;
 
 let start = go initialModel
